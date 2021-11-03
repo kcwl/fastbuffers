@@ -55,24 +55,5 @@ namespace fastbuffers
 		{
 			return split_impl<_Ty>(Indices{});
 		}
-
-		template<typename _Ty>
-		constexpr std::size_t size()
-		{
-			std::size_t pos = 0;
-			std::size_t count = 0;
-			constexpr auto member = _Ty::member_str();
-
-			for (;;)
-			{
-				pos = member.find_first_of(";", pos + 1);
-				if (pos == std::string_view::npos)
-					break;
-
-				count++;
-			}
-
-			return count;
-		}
 	}
 }
