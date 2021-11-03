@@ -10,12 +10,6 @@ namespace fastbuffers
 {
 	namespace reflect
 	{
-		template<std::size_t N, typename T>
-		constexpr auto translate_tuple(T& val)
-		{
-			return make_tuple(val, size_t_<N>{});
-		}
-
 		template<typename T>
 		constexpr auto rf_name() -> std::string_view
 		{
@@ -25,7 +19,7 @@ namespace fastbuffers
 		template<std::size_t N, typename T>
 		constexpr auto rf_element(const T& val)
 		{
-			return std::get<N>(translate_tuple<rf_size<T>::value>(val));
+			return std::get<N>(reflect::template make_tuple(val, size_t_<rf_size<T>::value>{}));
 		}
 
 		template<typename T, std::size_t N>
