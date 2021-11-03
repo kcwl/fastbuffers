@@ -37,7 +37,7 @@ namespace fastbuffers
 		template<typename T, std::size_t N>
 		struct rf_elem_type
 		{
-			using type = decltype(rf_element<N>(T{}));
+			using type = decltype(rf_element<N>(std::declval<T>()));
 		};
 
 #define MAKE_REFLECT(...)	\
