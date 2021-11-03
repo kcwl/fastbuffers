@@ -6,13 +6,39 @@
 
 using namespace fastbuffers;
 
+struct Person
+{
+	REFLECT_DEFINE(
+		int age;
+		float sex;
+		double nice;
+	);
+};
+
+
 int main()
 {
-    stream ss;
-    ss << 1 << 2 << 3 << 4 << 5;
+	stream ss;
+	ss << 1 << 2 << 3 << 4 << 5;
 
-    std::cout << "Hello World!\n";
-    std::cin.get();
+	constexpr Person ps{ 1,1.0f,1.2 };
+
+	constexpr auto name = fastbuffers::reflect::rf_elem_name<Person, 0>();
+
+	static_assert(name == "age", "name error");
+
+	constexpr auto name1 = fastbuffers::rf_name<Person>();
+
+	constexpr auto value1 = fastbuffers::rf_element<1>(ps);
+
+	//static_assert(rf_name<Person>() == "Person", "error");
+
+	//static_assert(rf_element<0>(ps) == 1, "re_element error");
+
+	static_assert(std::is_same_v<rf_elemet_t<Person, 1>, float>,"elemnt type error");
+
+	std::cout << "Hello World!\n";
+	std::cin.get();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
