@@ -47,7 +47,7 @@ namespace fastbuffers
 		template<typename _Ty, std::size_t... I>
 		constexpr auto split_impl(std::index_sequence<I...>)
 		{
-			return std::make_tuple(get<_Ty, I>()...);
+			return std::array{ get<_Ty, I>()... };
 		}
 
 		template<typename _Ty, std::size_t N, typename Indices = std::make_index_sequence<N>>
