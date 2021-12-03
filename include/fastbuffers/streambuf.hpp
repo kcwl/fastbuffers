@@ -6,47 +6,73 @@
 namespace fastbuffers
 {
 	template<std::size_t N, typename T = char>
-	class stream_buf : public std::streambuf
+	class stream_buf : public std::basic_streambuf<T,std::char_traits<T>>
 	{
+		using base_type = std::basic_streambuf<T, std::char_traits<T>>;
+
 	public:
 		using iterator = std::array<T,N>::iterator;
 		using const_iterator = const iterator;
 		using value_type = T;
+		using size_type = std::size_t;
 		using reference = T&;
 		using const_reference = const T&;
 		using pointer = T*;
 		using const_pointer = const pointer;
 
-		inline constexpr static std::size_t buffer_capacity = 4 * 1024;
-
 		stream_buf()
 			: buffer_()
 		{
-			setg(&buffer_[0], &buffer_[0], &buffer_[0]);
-			setp(&buffer_[0], &buffer_[0] + buffer_.max_size());
+			reset();
+		}
+
+		stream_buf(std::span<T> data)
+			: stream_buf()
+		{
+			for (auto iter = data.begin(); iter != data.end(); iter++)
+			{
+				push_back(*iter);
+			}
+		}
+
+		stream_buf(const stream_buf& buf)
+			: stream_buf(std::span<T>(buf.data(),buf.size()))
+		{
+
 		}
 
 		virtual ~stream_buf() = default;
 
 	public:
-		constexpr std::size_t size() const noexcept
+		value_type& operator[](size_type pos)
 		{
-			return pptr() - gptr();
+			return buffer_.at(pos);
 		}
 
-		std::size_t max_size() noexcept
+	public:
+		std::size_t size() noexcept
+		{
+			return base_type::pptr() - base_type::gptr();
+		}
+
+		std::size_t size() const noexcept
+		{
+			return base_type::pptr() - base_type::gptr();
+		}
+
+		constexpr std::size_t max_size() noexcept
 		{
 			return buffer_.max_size();
 		}
 
-		constexpr pointer data() noexcept
+		pointer data() noexcept
 		{
-			return gptr();
+			return base_type::gptr();
 		}
 
-		constexpr pointer data() const noexcept
+		pointer data() const noexcept
 		{
-			return gptr();
+			return base_type::gptr();
 		}
 
 		constexpr iterator begin() noexcept
@@ -68,32 +94,62 @@ namespace fastbuffers
 		{
 			return buffer_.end();
 		}
+		
+		void clear() noexcept
+		{
+			std::fill(buffer_.begin(), buffer_.end(), char{});
+
+			reset();
+		}
 
 		template<typename _Ty>
-		constexpr void push_back(_Ty&& value)
+		void push_back(_Ty&& value)
 		{
+			size() == 0 ? clear() : void();
+
 			constexpr std::size_t sz = sizeof(_Ty);
-			std::memcpy(pptr(), &value, sz);
+
+			std::memcpy(base_type::pptr(), &value, sz);
 
 			commit(sz);
 		}
 
-		constexpr void commit(std::size_t n) noexcept
+		void commit(std::size_t n) noexcept
 		{
-			n = std::min<std::size_t>(n, epptr() - pptr());
-			pbump(static_cast<int>(n));
-			setg(eback(), gptr(), pptr());
+			n = std::min<std::size_t>(n, base_type::epptr() - base_type::pptr());
+			base_type::pbump(static_cast<int>(n));
+			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
 		}
 
 		void consume(std::size_t n) noexcept
 		{
-			if(egptr() < pptr())
-				setg(&buffer_[0], gptr(), pptr());
+			if(base_type::egptr() < base_type::pptr())
+				base_type::setg(&buffer_[0], base_type::gptr(), base_type::pptr());
 
-			if(gptr() + n > pptr())
-				n = pptr() - gptr();
+			if(base_type::gptr() + n > base_type::pptr())
+				n = base_type::pptr() - base_type::gptr();
 
-			gbump(static_cast<int>(n));
+			base_type::gbump(static_cast<int>(n));
+		}
+
+		template<typename _Ty>
+		_Ty pop_front()
+		{
+			_Ty element{};
+			constexpr auto I = sizeof(_Ty);
+
+			std::memcpy(&element, reinterpret_cast<_Ty*>(data()), I);
+
+			consume(I);
+
+			return element;
+		}
+
+	private:
+		void reset()
+		{
+			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
+			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.max_size());
 		}
 
 	private:

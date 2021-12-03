@@ -2,4 +2,4 @@
 
 #include "fastbuffers/reflect.hpp"
 
-#include "fastbuffers/stream.hpp"
+#include "fastbuffers/ftstream.hpp"
