@@ -96,7 +96,7 @@ namespace fastbuffers
 
 	private:
 		template<typename _Ty>
-		requires(std::is_pod_v<std::remove_cvref_t<_Ty>>)
+		requires(is_pod_v<std::remove_cvref_t<_Ty>>)
 		void push(_Ty&& value)
 		{
 			for_each(std::move(value), [&](auto&& iter)
