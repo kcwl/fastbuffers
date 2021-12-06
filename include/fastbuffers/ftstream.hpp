@@ -17,7 +17,7 @@ namespace fastbuffers
 		{
 		}
 
-		ftstream(stream_buf<I> ios)
+		ftstream(stream_buf<I, _T> ios)
 			: buffer_(ios)
 		{
 

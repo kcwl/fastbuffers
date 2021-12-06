@@ -5,7 +5,7 @@
 
 namespace fastbuffers
 {
-	template<std::size_t N, typename T = char>
+	template<std::size_t N, typename T>
 	class stream_buf : public std::basic_streambuf<T,std::char_traits<T>>
 	{
 		using base_type = std::basic_streambuf<T, std::char_traits<T>>;
