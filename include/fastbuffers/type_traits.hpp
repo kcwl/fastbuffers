@@ -21,5 +21,16 @@ namespace fastbuffers
 
 	template<typename _Ty>
 	constexpr static bool is_container_v = is_container<std::remove_cvref_t<_Ty>>::value;
+
+
+	template<typename _Ty>
+	struct is_pod : std::false_type {};
+
+	template<typename _Ty>
+	requires(std::is_standard_layout_v<_Ty> && std::is_trivial_v<_Ty>)
+	struct is_pod<_Ty> : std::true_type{};
+
+	template<typename _Ty>
+	constexpr static bool is_pod_v = is_pod<std::remove_cvref_t<_Ty>>::value;
 }
 
