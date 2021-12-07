@@ -89,6 +89,11 @@ namespace fastbuffers
 			return buffer_.size();
 		}
 
+		constexpr std::size_t max_size() noexcept
+		{
+			return buffer_.max_size();
+		}
+
 		void commit(std::size_t n) noexcept
 		{
 			return buffer_.commit(n);
