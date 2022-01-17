@@ -99,6 +99,11 @@ namespace fastbuffers
 			return buffer_.commit(n);
 		}
 
+		void reset(std::size_t n) noexcept
+		{
+			return buffer_.reset(n);
+		}
+
 	private:
 		template<typename _Ty>
 		requires(is_pod_v<std::remove_cvref_t<_Ty>>)

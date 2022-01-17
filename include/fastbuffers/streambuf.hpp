@@ -132,6 +132,16 @@ namespace fastbuffers
 			base_type::gbump(static_cast<int>(n));
 		}
 
+		void reset(std::size_t n = -1)
+		{
+			std::size_t pos = 0;
+
+			n > size() || n == -1 ? pos = 0 : pos = size() - n;
+
+			base_type::setg(&buffer_[pos], &buffer_[pos], &buffer_[pos]);
+			base_type::setp(&buffer_[pos], &buffer_[pos] + buffer_.max_size());
+		}
+
 		template<typename _Ty>
 		_Ty pop_front()
 		{
@@ -143,13 +153,6 @@ namespace fastbuffers
 			consume(I);
 
 			return element;
-		}
-
-	private:
-		void reset()
-		{
-			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
-			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.max_size());
 		}
 
 	private:
