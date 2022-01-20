@@ -114,32 +114,28 @@ namespace fastbuffers
 			commit(sz);
 		}
 
-		void commit(std::size_t n) noexcept
+		void commit(int n) noexcept
 		{
-			n = std::min<std::size_t>(n, base_type::epptr() - base_type::pptr());
-			base_type::pbump(static_cast<int>(n));
+			n = static_cast<int>(std::min<std::size_t>(n, base_type::epptr() - base_type::pptr()));
+			base_type::pbump(n);
 			base_type::setg(base_type::eback(), base_type::gptr(), base_type::pptr());
 		}
 
-		void consume(std::size_t n) noexcept
+		void consume(int n) noexcept
 		{
 			if(base_type::egptr() < base_type::pptr())
 				base_type::setg(&buffer_[0], base_type::gptr(), base_type::pptr());
 
 			if(base_type::gptr() + n > base_type::pptr())
-				n = base_type::pptr() - base_type::gptr();
+				n = static_cast<int>(base_type::pptr() - base_type::gptr());
 
-			base_type::gbump(static_cast<int>(n));
+			base_type::gbump(n);
 		}
 
-		void reset(std::size_t n = -1)
+		void reset()
 		{
-			std::size_t pos = 0;
-
-			n > size() || n == -1 ? pos = 0 : pos = size() - n;
-
-			base_type::setg(&buffer_[pos], &buffer_[pos], &buffer_[pos]);
-			base_type::setp(&buffer_[pos], &buffer_[pos] + buffer_.max_size());
+			base_type::setg(&buffer_[0], &buffer_[0], &buffer_[0]);
+			base_type::setp(&buffer_[0], &buffer_[0] + buffer_.max_size());
 		}
 
 		template<typename _Ty>
